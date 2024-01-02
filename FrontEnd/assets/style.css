@@ -52,6 +52,7 @@ body {
 	margin:auto;
 	font-family: 'Work Sans' ;
 	font-size: 14px;
+	background-color: #FFFEF8;
 }
 header {
 	display: flex;
@@ -186,3 +187,53 @@ footer nav ul {
 	margin: 2em
 }
 
+.btns {
+	display: flex;
+	justify-content: center;
+	column-gap: 10px;
+	margin-bottom: 50px;
+}
+
+.btn {
+	font-family: 'Syne';
+	background: #1D6154;
+	color: white;
+	border-radius: 60px;
+	border: 1px  #1D6154 solid;
+	padding: 8px 15px;
+}
+
+/*Page Login*/
+
+#login h2{
+	text-align: center;
+	margin: 150px 0 7px 0;
+}
+#login form{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+#login label {
+	margin: 30px 0 7px calc(50% - 190px);
+}
+#login input {
+	width: 380px;
+	height: 50px;
+	margin: 0 auto;
+	border: none;
+	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.1);
+}
+#login form div {
+	display: flex;
+	flex-direction: column;
+}
+.connexion {
+	width: 180px;
+	margin: 37px auto 28px auto;
+}
+
+#login a {
+	text-align: center;
+	color: black;
+}
