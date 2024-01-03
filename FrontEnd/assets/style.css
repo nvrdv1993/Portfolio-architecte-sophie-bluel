@@ -181,28 +181,46 @@ input[type="submit"]{
 	border-radius: 60px ;
 }
 
-footer nav ul {
-	display: flex;
-	justify-content: flex-end;
-	margin: 2em
+
+footer {
+    width: 100%;
+    height: 60px;
+    background-color: #FFF;
+    margin-top: auto;
 }
 
+footer nav ul {
+    display: flex;
+    justify-content: flex-end;
+    margin: 2em;
+}
+
+  /* Style pour le conteneur des boutons */
 .btns {
 	display: flex;
 	justify-content: center;
 	column-gap: 10px;
 	margin-bottom: 50px;
-}
-
-.btn {
+  }
+  
+  /* Style pour chaque bouton de catégorie */
+  .btns button {
 	font-family: 'Syne';
-	background: #1D6154;
-	color: white;
+	background: #FFFEF8;  
+	color: #1D6154;
 	border-radius: 60px;
-	border: 1px  #1D6154 solid;
+	border: 1px solid #1D6154;
 	padding: 8px 15px;
-}
-
+  }
+  
+  /* Style bouton clic*/
+  .btns button:active,
+  .btns button:focus {
+	background-color: #1D6154;  /* Couleur de fond lorsqu'un bouton est actif (clic) ou en focus */
+	color: #FFFEF8;  /* Couleur du texte lorsqu'un bouton est actif (clic) ou en focus */
+  }
+  
+  
 /*Page Login*/
 
 #login h2{
@@ -236,4 +254,13 @@ footer nav ul {
 #login a {
 	text-align: center;
 	color: black;
+}
+
+.login {
+	font-family: 'Syne';
+	background: #1D6154; 
+	color: #FFFEF8;
+	border-radius: 60px;
+	border: 1px solid #1D6154;
+	padding: 8px 15px;
 }

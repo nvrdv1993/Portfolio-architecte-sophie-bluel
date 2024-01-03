@@ -1,117 +1,102 @@
-// gallery du backend
-
+// Déclaration des constantes pour les URLs des API
 const apiUrl = 'http://localhost:5678/api/works';
-
-fetch(apiUrl)
-  .then(response => response.json())
-  .then(data => {
-    // Utilisez la classe "gallery" pour cibler votre conteneur de galerie
-    const galleryContainer = document.querySelector('.gallery');
-
-    // Ajoutez dynamiquement les nouveaux travaux sans supprimer les existants
-    data.forEach(work => {
-      const figureElement = document.createElement('figure');
-      figureElement.innerHTML = `
-        <img src="${work.imageUrl}" alt="${work.title}">
-        <figcaption>${work.title}</figcaption>
-      `;
-      galleryContainer.appendChild(figureElement);
-    });
-  })
-  .catch(error => {
-    console.error('Erreur lors de la récupération des travaux:', error);
-  });
-
-
-// Utilisez la classe "btns" pour cibler votre conteneur de boutons
-const categoryButtonsContainer = document.querySelector('.btns');
-
-// Créez manuellement le bouton "Tous"
-const allButton = document.createElement('button');
-allButton.textContent = 'Tous';
-allButton.addEventListener('click', () => {
-  // Au clic du bouton "Tous", affichez tous les travaux
-  displayAllWorks();
-});
-categoryButtonsContainer.appendChild(allButton);
-
-// Récupérez les catégories depuis l'API
 const categoriesUrl = 'http://localhost:5678/api/categories';
 
-fetch(categoriesUrl)
-  .then(response => response.json())
-  .then(categories => {
-    // Ajoutez dynamiquement les nouveaux boutons pour les catégories
-    categories.forEach(category => {
-      const buttonElement = document.createElement('button');
-      buttonElement.textContent = category.name;
-      buttonElement.addEventListener('click', () => {
-        // Au clic d'un bouton, filtrez les travaux par catégorie
-        filterWorksByCategory(category.id);
-      });
-      categoryButtonsContainer.appendChild(buttonElement);
-    });
-  })
-  .catch(error => {
-    console.error('Erreur lors de la récupération des catégories:', error);
+// Fonction pour effectuer une requête GET et retourner le résultat en JSON
+async function fetchData(url) {
+  const response = await fetch(url);
+  const data = await response.json();
+  return data;
+}
+
+// Fonction pour mettre en surbrillance le bouton actuel
+function highlightButton(clickedButton) {
+  categoryButtons.forEach(button => {
+    if (button !== clickedButton) {
+      button.style.backgroundColor = '#FFFEF8';
+      button.style.color = '#1D6154';
+    } else {
+      button.style.backgroundColor = '#1D6154';
+      button.style.color = '#FFFEF8';
+    }
   });
+}
 
-// Fonction pour afficher tous les travaux
-function displayAllWorks() {
-  const apiUrl = 'http://localhost:5678/api/works';
+// Fonction pour afficher les travaux en fonction des filtres
+function displayWorks(works) {
+  const galleryContainer = document.querySelector('.gallery');
+  galleryContainer.innerHTML = '';
 
-  fetch(apiUrl)
-    .then(response => response.json())
-    .then(data => {
-      // Utilisez la classe "gallery" pour cibler votre conteneur de galerie
-      const galleryContainer = document.querySelector('.gallery');
-
-      // Supprimez les travaux existants dans le conteneur de galerie
-      galleryContainer.innerHTML = '';
-
-      // Ajoutez dynamiquement tous les travaux
-      data.forEach(work => {
-        const figureElement = document.createElement('figure');
-        figureElement.innerHTML = `
-          <img src="${work.imageUrl}" alt="${work.title}">
-          <figcaption>${work.title}</figcaption>
-        `;
-        galleryContainer.appendChild(figureElement);
-      });
-    })
-    .catch(error => {
-      console.error('Erreur lors de la récupération des travaux:', error);
-    });
+  works.forEach(work => {
+    const figureElement = document.createElement('figure');
+    figureElement.innerHTML = `
+      <img src="${work.imageUrl}" alt="${work.title}">
+      <figcaption>${work.title}</figcaption>
+    `;
+    galleryContainer.appendChild(figureElement);
+  });
 }
 
 // Fonction pour filtrer les travaux par catégorie
-function filterWorksByCategory(categoryId) {
-  const apiUrl = 'http://localhost:5678/api/works';
+async function filterWorksByCategory(categoryId, clickedButton) {
+  const data = await fetchData(apiUrl);
+  let filteredWorks;
 
-  fetch(apiUrl)
-    .then(response => response.json())
-    .then(data => {
-      // Utilisez la classe "gallery" pour cibler votre conteneur de galerie
-      const galleryContainer = document.querySelector('.gallery');
+  if (categoryId === null) {
+    // Si la catégorie est null, afficher tous les travaux
+    filteredWorks = data;
+  } else {
+    // Sinon, filtrer par catégorie
+    filteredWorks = data.filter(work => work.categoryId === categoryId);
+  }
 
-      // Supprimez les travaux existants dans le conteneur de galerie
-      galleryContainer.innerHTML = '';
-
-      // Filtrer les travaux par catégorie
-      const filteredWorks = data.filter(work => work.categoryId === categoryId);
-
-      // Ajoutez dynamiquement les nouveaux travaux
-      filteredWorks.forEach(work => {
-        const figureElement = document.createElement('figure');
-        figureElement.innerHTML = `
-          <img src="${work.imageUrl}" alt="${work.title}">
-          <figcaption>${work.title}</figcaption>
-        `;
-        galleryContainer.appendChild(figureElement);
-      });
-    })
-    .catch(error => {
-      console.error('Erreur lors de la récupération des travaux:', error);
-    });
+  displayWorks(filteredWorks);
+  highlightButton(clickedButton);
 }
 
+// Fonction pour créer un bouton de catégorie
+function createCategoryButton(category) {
+  const buttonElement = document.createElement('button');
+  buttonElement.textContent = category.name;
+  buttonElement.dataset.categoryId = category.id;
+  buttonElement.addEventListener('click', () => {
+    filterWorksByCategory(category.id === 'null' ? null : category.id, buttonElement);
+  });
+  return buttonElement;
+}
+
+// Fonction principale pour initialiser la page
+async function initializePage() {
+  // Création du bouton "Tous"
+  const allButton = createCategoryButton({ id: 'null', name: 'Tous' });
+
+  // Récupération des catégories depuis l'API
+  const categories = await fetchData(categoriesUrl);
+
+  // Création des boutons de catégorie
+  const categoryButtonsContainer = document.querySelector('.btns');
+  const categoryButtons = categories.map(createCategoryButton);
+
+  // Ajout des boutons à la page
+  categoryButtons.unshift(allButton); // Ajout du bouton "Tous" en premier
+  categoryButtons.forEach(button => {
+    categoryButtonsContainer.appendChild(button);
+  });
+
+  // Appel à displayAllWorks() lors du chargement initial pour afficher tous les travaux
+  await filterWorksByCategory(null, allButton);
+
+  // Gestionnaire d'événements sur le document pour réinitialiser le style des boutons
+  document.addEventListener('click', (event) => {
+    if (!categoryButtonsContainer.contains(event.target)) {
+      // Réinitialise le style de tous les boutons
+      categoryButtons.forEach(button => {
+        button.style.backgroundColor = '#FFFEF8';
+        button.style.color = '#1D6154';
+      });
+    }
+  });
+}
+
+// Appel de la fonction principale pour initialiser la page
+initializePage();
