@@ -1,8 +1,6 @@
-// Déclaration des constantes pour les URLs des API
 const apiUrl = 'http://localhost:5678/api/works';
 const categoriesUrl = 'http://localhost:5678/api/categories';
 
-// Récupération des éléments du DOM
 const galleryContainer = document.querySelector('.gallery');
 const categoryButtonsContainer = document.querySelector('.btns');
 
@@ -16,85 +14,119 @@ async function fetchData(url) {
   return data;
 }
 
-// Fonctions liées à l'affichage
-function displayWorks(works) {
+// Fonction pour afficher les travaux en fonction de la catégorie
+async function showWorksByCategory(categoryId) {
   galleryContainer.innerHTML = '';
 
-  works.forEach(work => {
+  const works = await fetchData(apiUrl);
+  const filteredWorks = categoryId === 0 ? works : works.filter(work => work.categoryId === categoryId);
+
+  filteredWorks.forEach(work => {
     const figureElement = document.createElement('figure');
-    figureElement.innerHTML = `
+    figureElement.insertAdjacentHTML('beforeend', `
       <img src="${work.imageUrl}" alt="${work.title}">
       <figcaption>${work.title}</figcaption>
-    `;
+    `);
     galleryContainer.appendChild(figureElement);
   });
 }
 
-function highlightButton(clickedButton) {
-  categoryButtons.forEach(button => {
-    if (button !== clickedButton) {
-      button.style.backgroundColor = '#FFFEF8';
-      button.style.color = '#1D6154';
-    } else {
-      button.style.backgroundColor = '#1D6154';
-      button.style.color = '#FFFEF8';
-    }
-  });
-}
+// Fonction pour créer et afficher les boutons de catégorie
+async function displayCategoriesBtn() {
+  const arrCategories = await fetchData(categoriesUrl);
 
-// Fonctions liées aux requêtes et à la gestion des boutons de catégorie
-async function filterWorksByCategory(categoryId, clickedButton) {
-  const data = await fetchData(apiUrl);
-  const filteredWorks = categoryId === null ? data : data.filter(work => work.categoryId === categoryId);
-
-  displayWorks(filteredWorks);
-  highlightButton(clickedButton);
-}
-
-function createCategoryButton(category) {
-  const buttonElement = document.createElement('button');
-  buttonElement.textContent = category.name;
-  buttonElement.dataset.categoryId = category.id;
-  buttonElement.addEventListener('click', () => {
-    filterWorksByCategory(category.id === 'null' ? null : category.id, buttonElement);
-  });
-  return buttonElement;
-}
-
-// Fonction principale pour initialiser la page
-async function initializePage() {
   // Création du bouton "Tous"
-  const allButton = createCategoryButton({ id: 'null', name: 'Tous' });
+  const allButton = document.createElement('button');
+  allButton.classList.add('btn', 'active');
+  allButton.innerText = 'Tous';
+  allButton.setAttribute('data-category-id', 0);
+  categoryButtonsContainer.appendChild(allButton);
 
-  // Récupération des catégories depuis l'API
-  const categories = await fetchData(categoriesUrl);
+  // Écouteur d'événement pour le bouton "Tous"
+  allButton.addEventListener('click', async () => {
+    const allButtons = document.querySelectorAll('.btn');
+    allButtons.forEach(button => button.classList.remove('active'));
 
-  // Création des boutons de catégorie
-  categoryButtons.push(allButton); // Ajout du bouton "Tous" dans la variable categoryButtons
-  categories.forEach(category => {
-    const button = createCategoryButton(category);
-    categoryButtons.push(button);
+    allButton.classList.add('active');
+    showWorksByCategory(0);
   });
 
-  // Ajout des boutons à la page
-  categoryButtons.forEach(button => {
-    categoryButtonsContainer.appendChild(button);
-  });
+  // Création des boutons pour chaque catégorie
+  for (let i = 0; i < arrCategories.length; i += 1) {
+    const btn = document.createElement('button');
+    btn.classList.add('btn');
+    btn.innerText = arrCategories[i].name;
+    btn.setAttribute('data-category-id', arrCategories[i].id);
+    categoryButtonsContainer.appendChild(btn);
 
-  // Appel à displayAllWorks() lors du chargement initial pour afficher tous les travaux
-  await filterWorksByCategory(null, allButton);
+    // Écouteur d'événement pour chaque bouton de catégorie
+    btn.addEventListener('click', async () => {
+      const allButtons = document.querySelectorAll('.btn');
+      allButtons.forEach(button => button.classList.remove('active'));
 
-  // Gestionnaire d'événements sur le document pour réinitialiser le style des boutons
-  document.addEventListener('click', (event) => {
-    if (!categoryButtonsContainer.contains(event.target)) {
-      // Réinitialise le style de tous les boutons
-      categoryButtons.forEach(button => {
-        button.style.backgroundColor = '#FFFEF8';
-        button.style.color = '#1D6154';
-      });
-    }
-  });
+      btn.classList.toggle('active');
+      showWorksByCategory(arrCategories[i].id);
+    });
+  }
+
+  // Affichage des travaux au chargement de la page
+  showWorksByCategory(0);
 }
 
-// Appel de la fonction principale pour initialiser la page
-initializePage();
+// Appel de la fonction pour afficher les catégories au chargement de la page
+displayCategoriesBtn();
+
+// ...
+
+// Fonction pour vérifier l'état de connexion et mettre à jour le bouton
+function checkLoginStatus() {
+  const loginButton = document.getElementById('login');
+  const accessToken = sessionStorage.getItem('accessToken');
+
+  if (accessToken) {
+      // L'utilisateur est connecté
+      loginButton.innerText = 'logout';
+      loginButton.addEventListener('click', logout);
+  } else {
+      // L'utilisateur n'est pas connecté
+      loginButton.innerText = 'login';
+      loginButton.href = './login.html';
+  }
+}
+
+// Appelle la fonction au chargement de la page
+checkLoginStatus();
+
+// Fonction pour déconnexion
+async function logout() {
+  try {
+      // Effectue une requête de déconnexion à l'API, si nécessaire
+      // ...
+
+      // Efface le jeton de session
+      sessionStorage.removeItem('accessToken');
+
+      // Redirige vers la page de login
+      window.location.href = './login.html';
+  } catch (error) {
+      console.log(error);
+  }
+}
+
+// Fonction pour vérifier l'état de connexion et afficher/masquer le bouton d'édition
+function checkEditButtonVisibility() {
+    const editButton = document.querySelector('.edit-btn');
+    const accessToken = sessionStorage.getItem('accessToken');
+
+    if (accessToken) {
+        // L'utilisateur est connecté, affiche le bouton d'édition
+        editButton.style.display = 'block';
+    } else {
+        // L'utilisateur n'est pas connecté, masque le bouton d'édition
+        editButton.style.display = 'none';
+    }
+}
+
+// Appelle la fonction au chargement de la page
+checkEditButtonVisibility();
+

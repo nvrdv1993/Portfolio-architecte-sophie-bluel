@@ -8,6 +8,7 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Work+Sans&display=swap" rel="stylesheet">
 	<meta name="description" content="">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<link rel="stylesheet" href="./assets/style.css">
 </head>
 <body>
@@ -17,7 +18,9 @@
 		<ul>
 			<li>projets</li>
 			<li>contact</li>
-			<li>login</li>
+			<li>
+				<a href="./login.html" id="login">login</a>
+			</li>
 			<li><img src="./assets/icons/instagram.png" alt="Instagram"></li>
 		</ul>
 	</nav>
@@ -35,11 +38,19 @@
 		</article>
 	</section>
 	<section id="portfolio">
-		<h2>Mes Projets</h2>
-		<div class="btns" id="categoryButtons"></div>
-		<div class="gallery">
+		<div class="title-bar">
+			<h2>Mes Projets</h2>
+			<div class="edit-btn">
+				<i class="fa-regular fa-pen-to-square"></i>
+				<span>modifier</span>
+			</div>
 		</div>
+		<div class="btns" id="categoryButtons"></div>
+		<div class="gallery"></div>
 	</section>
+	
+	
+	
 	<section id="contact">
 		<h2>Contact</h2>
 		<p>Vous avez un projet ? Discutons-en !</p>

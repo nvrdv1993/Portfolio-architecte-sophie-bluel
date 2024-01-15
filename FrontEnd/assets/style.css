@@ -59,6 +59,11 @@ header {
 	justify-content: space-between;
 	margin: 50px 0
 }
+
+ a {
+	text-decoration: none; /* Supprime la décoration du lien (comme les soulignements) */
+	color: inherit; /* Assure que la couleur du texte est héritée (peut être ajusté en fonction de votre schéma de couleurs) */
+  }
 section {
 	margin: 50px 0
 }
@@ -181,23 +186,20 @@ input[type="submit"]{
 	border-radius: 60px ;
 }
 
+/* Le reste de vos styles CSS... */
 
-footer {
-    width: 100%;
-    height: 60px;
-    background-color: #FFF;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin-top: auto;
-}
 
 footer nav ul {
     display: flex;
     justify-content: flex-end;
     margin: 2em;
 }
+
+
+.login-footer {
+    margin-top: auto;
+}
+
 
   /* Style pour le conteneur des boutons */
 .btns {
@@ -268,3 +270,46 @@ footer nav ul {
 	border: 1px solid #1D6154;
 	padding: 8px 15px;
 }
+
+/*Lien login gras*/
+
+.bold a {
+    font-weight: bold;
+}
+
+/*Bouton modifier*/
+
+#portfolio {
+    position: relative;
+    padding-right: 10%;
+}
+
+.title-bar {
+    display: flex;
+    align-items: center;
+	justify-content: center;
+	gap: 20px;
+}
+
+.edit-btn {
+    margin-left: 10px; /* Ajuste la marge entre le titre et le bouton selon tes préférences */
+	margin-bottom: 25px; /* Ajuste la marge vers le haut selon tes préférences */
+	font-family: 'Syne';
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.edit-btn i {
+    margin-right: 5px;
+}
+
+.edit-btn span {
+    display: inline;
+	font-size: 12px
+}
+
+
+/*Modale*/
+
+
