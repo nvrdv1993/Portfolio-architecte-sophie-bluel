@@ -102,47 +102,22 @@ function logout() {
   window.location.href = './login.html';
 }
 
-// Fonction pour vérifier la visibilité du bouton d'édition et des filtres.
+// Fonction pour vérifier la visibilité du bouton d'édition.
 function checkEditButtonVisibility() {
-  // Récupère le bouton d'édition, les filtres et l'access token depuis la session.
+  // Récupère le bouton d'édition et l'access token depuis la session.
   const editButton = document.querySelector('.edit-btn');
-  const categoryButtonsContainer = document.querySelector('.btns');
-  const editBanner = document.getElementById('editBanner'); // Nouvelle ligne
   const accessToken = sessionStorage.getItem('accessToken');
 
   // Vérifie si un access token est présent.
   if (accessToken) {
     // Si connecté, affiche le bouton d'édition.
     editButton.style.display = 'block';
-
-    // Affiche les filtres.
-    if (categoryButtonsContainer) {
-      categoryButtonsContainer.style.display = 'flex';
-    }
-
-    // Affiche le bandeau.
-    if (editBanner) {
-      editBanner.style.display = 'flex';
-      editBanner.querySelector('div').style.display = 'flex'; // Ajout de cette ligne
-    }
   } else {
-    // Si non connecté, masque le bouton d'édition, les filtres et le bandeau.
+    // Si non connecté, masque le bouton d'édition.
     editButton.style.display = 'none';
-
-    // Masque les filtres.
-    if (categoryButtonsContainer) {
-      categoryButtonsContainer.style.display = 'none';
-    }
-
-    // Masque le bandeau.
-    if (editBanner) {
-      editBanner.style.display = 'none';
-    }
   }
 }
 
-// Appelle la fonction pour vérifier la visibilité du bouton d'édition et des filtres lors du chargement de la page.
-checkEditButtonVisibility();
 
 // --- Affichage de la modale au clic sur le bouton edit-btn ---
 const editButton = document.querySelector('.edit-btn');
@@ -196,7 +171,7 @@ async function delWork(workId) {
     const deletedElement = document.querySelector(`[data-id="${workId}"]`);
     if (deletedElement) {
       deletedElement.remove();
-
+      
       // Actualise la liste des œuvres dans la première modale
       showWorksInModal();
 
@@ -208,13 +183,17 @@ async function delWork(workId) {
   }
 }
 
+
+
 displayCategoriesBtn();
 checkLoginStatus();
 checkEditButtonVisibility();
 showWorksInModal();
 
 const closeButton = document.querySelector('.close');
+
 closeButton.addEventListener('click', closeModal);
+
 
 // --- Fonction pour fermer la modale ---
 function closeModal() {
@@ -265,6 +244,7 @@ function closeModal2() {
   document.getElementById('modal2').style.display = 'none';
 }
 
+
 // Ajoute cet appel à fetchData au début de showWorksInModal
 async function showWorksInModal() {
   // Effacer le contenu existant du conteneur
@@ -272,6 +252,7 @@ async function showWorksInModal() {
 
   // Récupère les catégories depuis l'API
   const categories = await fetchData(categoriesUrl);
+
   let arrWorks = await fetchData(apiUrl);
 
   arrWorks.forEach((work) => {
@@ -328,6 +309,7 @@ function previewImage(event) {
 // Ajoute un écouteur d'événement au champ de fichier pour appeler la fonction de prévisualisation
 const uploadImgInput = document.getElementById('uploadImg');
 uploadImgInput.addEventListener('change', previewImage);
+
 
 // Ajoute cet événement au bouton de validation dans la deuxième modale
 const validButton = document.querySelector('.valid');
@@ -391,33 +373,29 @@ async function submitWork(formData) {
   }
 }
 
-// Modifie la fonction checkConditions pour gérer l'affichage dynamique du message d'erreur
+// --- Conditions pour le bouton Valider ---
 const checkConditions = () => {
   const uploadImg = document.getElementById('sendImg').querySelector('input[type="file"]');
   const upTitle = document.getElementById('titre');
   const selectCategory = document.getElementById('categorie');
   const submitButton = document.querySelector('.valid');
-  const modal2 = document.getElementById('modal2');
-  const errorMessage = modal2.querySelector('.error-message') || createErrorMessage();
 
   if (uploadImg.files[0]?.size < 4000000 && upTitle.value !== '' && selectCategory.value !== '') {
     submitButton.classList.add('envoyer');
-    errorMessage.style.display = 'none';
   } else {
     submitButton.classList.remove('envoyer');
-    errorMessage.style.display = 'block';
   }
 };
 
-// Fonction pour créer dynamiquement le message d'erreur
-function createErrorMessage() {
-  const errorMessage = document.createElement('p');
-  errorMessage.classList.add('error-message');
-  errorMessage.id = 'error-message-form';
-  errorMessage.innerText = 'Certains champs sont vides. Merci de les compléter.';
+// Ajoute les écouteurs d'événements pour les champs pertinents
+const uploadImg = document.getElementById('sendImg').querySelector('input[type="file"]');
+const upTitle = document.getElementById('titre');
+const selectCategory = document.getElementById('categorie');
 
-  const modal2 = document.getElementById('modal2');
-  modal2.insertBefore(errorMessage, modal2.firstChild);
+upTitle.addEventListener('input', checkConditions);
+selectCategory.addEventListener('input', checkConditions);
+uploadImg.addEventListener('input', function (event) {
+  checkConditions();
+  previewImage(event);
+});
 
-  return errorMessage;
-}
