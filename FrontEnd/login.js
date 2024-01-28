@@ -46,10 +46,6 @@ function handleErrors(status) {
 
 form.addEventListener('submit', handleFormSubmit);
 
-// ...
-
-// ...
-
 // logout
 const logoutButton = document.querySelector('.edit-btn');
 if (logoutButton) {
