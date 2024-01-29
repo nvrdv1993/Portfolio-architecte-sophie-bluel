@@ -642,16 +642,20 @@ footer nav ul {
 #editBanner {
     background-color: #000;
     color: #fff;
-    padding-top: 15px;
     text-align: center;
-    width: 100%;
-    height: 40px;
+    width: 100vw; /* Utilisez 100vw pour spécifier la largeur de la vue */
+    height: 40px; /* ou remplacez par une valeur spécifique en pixels si nécessaire */
     display: flex;
     align-items: center;
     justify-content: center;
-    position: sticky;
+    position: fixed; /* Changez de sticky à fixed pour couvrir toute la largeur */
     top: 0;
+    left: 0; /* Ajoutez cette ligne pour ancrer la bannière à la gauche de la fenêtre */
     z-index: 1000;
+}
+
+#editBanner div {
+    padding-top: 10px;
 }
 
 #editBanner i {

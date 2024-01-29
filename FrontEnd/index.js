@@ -76,6 +76,7 @@ async function displayCategoriesBtn() {
   // Affiche initialement toutes les œuvres.
   showWorksByCategory(0);
 }
+displayCategoriesBtn();
 
 // Fonction pour vérifier l'état de connexion de l'utilisateur.
 function checkLoginStatus() {
@@ -94,6 +95,7 @@ function checkLoginStatus() {
     loginButton.href = './login.html';
   }
 }
+checkLoginStatus();
 
 // Fonction pour déconnecter l'utilisateur.
 function logout() {
@@ -102,26 +104,30 @@ function logout() {
   window.location.href = './login.html';
 }
 
-// Fonction pour vérifier la visibilité du bouton d'édition.
-function checkEditButtonVisibility() {
-  // Récupère le bouton d'édition et l'access token depuis la session.
+// Fonction pour vérifier la visibilité du bouton d'édition et de la bannière
+function checkEditBannerVisibility() {
+  // Récupère le bouton d'édition, la bannière et l'access token depuis la session.
   const editButton = document.querySelector('.edit-btn');
+  const editBanner = document.getElementById('editBanner');
   const accessToken = sessionStorage.getItem('accessToken');
 
   // Vérifie si un access token est présent.
   if (accessToken) {
-    // Si connecté, affiche le bouton d'édition.
+    // Si connecté, affiche le bouton d'édition et la bannière.
     editButton.style.display = 'block';
+    editBanner.style.display = 'block';
   } else {
-    // Si non connecté, masque le bouton d'édition.
+    // Si non connecté, masque le bouton d'édition et la bannière.
     editButton.style.display = 'none';
+    editBanner.style.display = 'none';
   }
 }
 
+// Appelle cette fonction pour initialiser la visibilité au chargement de la page.
+checkEditBannerVisibility();
 
 // --- Affichage de la modale au clic sur le bouton edit-btn ---
 const editButton = document.querySelector('.edit-btn');
-
 
 editButton.addEventListener('click', function () {
   modalContainer.style.display = 'flex';
@@ -155,8 +161,7 @@ async function showWorksInModal() {
     worksContainer.appendChild(figureModal);
     figureModal.append(figureImgModal, editButton, delButton);
   });
-}
-
+} 
 // --- Requête DELETE pour supprimer un projet ---
 async function delWork(workId) {
   try {
@@ -182,18 +187,11 @@ async function delWork(workId) {
     console.log('ERROR', e);
   }
 }
-
-
-
-displayCategoriesBtn();
-checkLoginStatus();
-checkEditButtonVisibility();
 showWorksInModal();
 
 const closeButton = document.querySelector('.close');
 
 closeButton.addEventListener('click', closeModal);
-
 
 // --- Fonction pour fermer la modale ---
 function closeModal() {
@@ -243,7 +241,6 @@ function closeModal2() {
   modalContainer.style.display = 'none';
   document.getElementById('modal2').style.display = 'none';
 }
-
 
 // Ajoute cet appel à fetchData au début de showWorksInModal
 async function showWorksInModal() {
@@ -306,15 +303,29 @@ function previewImage(event) {
   }
 }
 
-// Ajoute un écouteur d'événement au champ de fichier pour appeler la fonction de prévisualisation
-const uploadImgInput = document.getElementById('uploadImg');
-uploadImgInput.addEventListener('change', previewImage);
+// --- Conditions pour le bouton Valider ---
+const checkConditions = () => {
+  const uploadImg = document.getElementById('sendImg').querySelector('input[type="file"]');
+  const upTitle = document.getElementById('titre');
+  const selectCategory = document.getElementById('categorie');
+  const validButton = document.querySelector('.valid');
 
+  validButton.classList.toggle('envoyer', uploadImg.files.length > 0 && uploadImg.files[0]?.size < 4000000 && upTitle.value !== '' && selectCategory.value !== '');
+};
+
+// Ajoute les écouteurs d'événements pour les champs pertinents
+const uploadImg = document.getElementById('sendImg').querySelector('input[type="file"]');
+const upTitle = document.getElementById('titre');
+const selectCategory = document.getElementById('categorie');
+
+upTitle.addEventListener('input', checkConditions);
+selectCategory.addEventListener('input', checkConditions);
+uploadImg.addEventListener('input', (event) => { checkConditions(); previewImage(event); });
 
 // Ajoute cet événement au bouton de validation dans la deuxième modale
 const validButton = document.querySelector('.valid');
-validButton.addEventListener('click', function (event) {
-  event.preventDefault(); // Empêche le formulaire de se soumettre
+validButton.addEventListener('click', async (event) => {
+  event.preventDefault();
 
   const titleInput = document.getElementById('titre');
   const categorySelect = document.getElementById('categorie');
@@ -325,77 +336,62 @@ validButton.addEventListener('click', function (event) {
   const categoryId = categorySelect.value;
   const file = uploadImgInput.files[0];
 
+  const responseStatus = 400;
+  const responseData = { message: "Certains champs sont vides. Merci de les compléter." };
+
   if (title && categoryId && file) {
-    // Création d'un objet FormData pour envoyer les données au serveur
     const formData = new FormData();
     formData.append('title', title);
     formData.append('category', categoryId);
     formData.append('image', file);
 
-    // Envoi de la requête POST au serveur
-    submitWork(formData);
+    try {
+      const response = await fetch(apiUrl, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData });
 
-    // Réinitialise les champs après l'envoi réussi
-    titleInput.value = '';
-    categorySelect.value = '';
-    uploadImgInput.value = '';
-    previewImageElement.src = '';
-    validButton.classList.remove('envoyer'); // Retire la classe pour réinitialiser le style du bouton
-  } else {
-    alert("Veuillez remplir tous les champs.");
-  }
-});
-
-// Fonction pour envoyer une nouvelle œuvre au serveur
-async function submitWork(formData) {
-  try {
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`
-      },
-      body: formData
-    });
-
-    if (response.status === 201) {
-      // Si la requête est un succès (status 201 Created), alors ferme la modale et rafraîchit la galerie
-      closeModal2();
-      showWorksByCategory(0); // Rafraîchit la galerie pour afficher la nouvelle œuvre
-      // Mise à jour de la liste des œuvres dans la première modale
-      showWorksInModal();
-    } else {
-      // Affiche une alerte en cas d'erreur
-      alert("Erreur lors de l'ajout de l'image.");
+      if (response.ok) {
+        closeModal2();
+        showWorksByCategory(0);
+        showWorksInModal();
+        previewImageElement.src = ''; // Réinitialise l'élément d'aperçu
+      } else {
+        const responseData = await response.json();
+        handleWorkSubmissionErrors(response.status, responseData);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert("Une erreur inattendue s'est produite.");
     }
-  } catch (error) {
-    console.error('Error:', error);
-    alert("Une erreur inattendue s'est produite.");
-  }
-}
 
-// --- Conditions pour le bouton Valider ---
-const checkConditions = () => {
-  const uploadImg = document.getElementById('sendImg').querySelector('input[type="file"]');
-  const upTitle = document.getElementById('titre');
-  const selectCategory = document.getElementById('categorie');
-  const submitButton = document.querySelector('.valid');
+    [titleInput, categorySelect, uploadImgInput, previewImageElement].forEach((el) => el.value = '');
+    validButton.classList.remove('envoyer');
 
-  if (uploadImg.files[0]?.size < 4000000 && upTitle.value !== '' && selectCategory.value !== '') {
-    submitButton.classList.add('envoyer');
+    const errorMessageElement = document.getElementById('workErrorMessage');
+    if (errorMessageElement) errorMessageElement.style.display = 'none';
   } else {
-    submitButton.classList.remove('envoyer');
+    handleWorkSubmissionErrors(responseStatus, responseData);
   }
-};
-
-// Ajoute les écouteurs d'événements pour les champs pertinents
-const uploadImg = document.getElementById('sendImg').querySelector('input[type="file"]');
-const upTitle = document.getElementById('titre');
-const selectCategory = document.getElementById('categorie');
-
-upTitle.addEventListener('input', checkConditions);
-selectCategory.addEventListener('input', checkConditions);
-uploadImg.addEventListener('input', function (event) {
-  checkConditions();
-  previewImage(event);
 });
+
+// Fonction pour gérer les erreurs de soumission d'œuvre
+function handleWorkSubmissionErrors(status, responseData) {
+  const modal2 = document.getElementById('modal2');
+  let errorContainer = document.querySelector('.error-container');
+
+  if (!errorContainer) {
+    errorContainer = document.createElement('div');
+    errorContainer.classList.add('error-container');
+    errorContainer.id = 'workErrorMessage';
+    modal2.appendChild(errorContainer);
+  }
+
+  const error = document.createElement('p');
+  error.style.textAlign = 'center';
+  error.style.color = 'red';
+  error.style.marginBottom = '15px';
+  error.innerText = responseData.message || "Certains champs sont vides. Merci de les compléter.";
+
+  errorContainer.innerHTML = '';
+  errorContainer.appendChild(error);
+  errorContainer.style.display = 'block';
+}
 
