@@ -326,6 +326,7 @@ footer nav ul {
 }
 
 /* Style bouton clic*/
+
 .btns button:active,
 .btns button:focus {
 	background-color: #1D6154;
@@ -406,9 +407,7 @@ footer nav ul {
 
 .edit-btn {
 	margin-left: 10px;
-	/* Ajuste la marge entre le titre et le bouton selon tes préférences */
 	margin-bottom: 25px;
-	/* Ajuste la marge vers le haut selon tes préférences */
 	font-family: 'Syne';
 	cursor: pointer;
 	display: flex;
@@ -565,7 +564,6 @@ footer nav ul {
 
 #modal2 select {
 	font-family: 'NomDeLaPolice', sans-serif;
-	/* Remplace 'NomDeLaPolice' par le nom réel de la police que tu veux utiliser */
 }
 
 #titre,
@@ -582,9 +580,7 @@ footer nav ul {
 	text-align: left;
 	color: black;
 	background-color: white;
-	/* ou la couleur que tu préfères */
 	padding-left: 10px;
-	/* Ajoute de l'espace à gauche du texte dans les champs de formulaire */
 }
 
 #sendImg {
@@ -638,19 +634,20 @@ footer nav ul {
 	height: 170px;
 }
 
+/*Bannière*/
 
 #editBanner {
     background-color: #000;
     color: #fff;
     text-align: center;
-    width: 100vw; /* Utilisez 100vw pour spécifier la largeur de la vue */
-    height: 40px; /* ou remplacez par une valeur spécifique en pixels si nécessaire */
+    width: 100vw; 
+    height: 40px; 
     display: flex;
     align-items: center;
     justify-content: center;
-    position: fixed; /* Changez de sticky à fixed pour couvrir toute la largeur */
+    position: fixed; 
     top: 0;
-    left: 0; /* Ajoutez cette ligne pour ancrer la bannière à la gauche de la fenêtre */
+    left: 0; 
     z-index: 1000;
 }
 

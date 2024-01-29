@@ -11,7 +11,7 @@ const token = sessionStorage.accessToken;
 async function fetchData(url) {
   const response = await fetch(url);
   const data = await response.json();
-  return data;
+  return data;                                                                                                                                                                     
 }
 
 // Fonction asynchrone pour afficher les œuvres filtrées par catégorie dans la galerie.
@@ -72,10 +72,10 @@ async function displayCategoriesBtn() {
       showWorksByCategory(arrCategories[i].id);
     });
   }
-
   // Affiche initialement toutes les œuvres.
   showWorksByCategory(0);
 }
+
 displayCategoriesBtn();
 
 // Fonction pour vérifier l'état de connexion de l'utilisateur.
@@ -143,12 +143,10 @@ async function showWorksInModal() {
   arrWorks.forEach((work) => {
     const figureModal = document.createElement('figure');
     const figureImgModal = document.createElement('img');
-    const editButton = document.createElement('button');
     const delButton = document.createElement('button');
     figureModal.setAttribute('data-id', work.id)
     figureImgModal.src = work.imageUrl;
     figureImgModal.alt = work.title;
-    editButton.classList.add('editer');
     delButton.innerHTML = '<i class="fa-regular fa-trash-can fa-lg"></i>';
     delButton.classList.add('delete');
 
@@ -161,7 +159,8 @@ async function showWorksInModal() {
     worksContainer.appendChild(figureModal);
     figureModal.append(figureImgModal, editButton, delButton);
   });
-} 
+}
+
 // --- Requête DELETE pour supprimer un projet ---
 async function delWork(workId) {
   try {
@@ -176,7 +175,7 @@ async function delWork(workId) {
     const deletedElement = document.querySelector(`[data-id="${workId}"]`);
     if (deletedElement) {
       deletedElement.remove();
-      
+
       // Actualise la liste des œuvres dans la première modale
       showWorksInModal();
 
@@ -322,6 +321,28 @@ upTitle.addEventListener('input', checkConditions);
 selectCategory.addEventListener('input', checkConditions);
 uploadImg.addEventListener('input', (event) => { checkConditions(); previewImage(event); });
 
+// Fonction pour gérer les erreurs de soumission d'œuvre
+function handleWorkSubmissionErrors(status, responseData) {
+  const modal2 = document.getElementById('modal2');
+  let errorContainer = document.querySelector('.error-container');
+
+  if (!errorContainer) {
+    errorContainer = document.createElement('div');
+    errorContainer.classList.add('error-container');
+    errorContainer.id = 'workErrorMessage';
+    modal2.appendChild(errorContainer);
+  }
+  const error = document.createElement('p');
+  error.style.textAlign = 'center';
+  error.style.color = 'red';
+  error.style.marginBottom = '15px';
+  error.innerText = responseData.message || "Certains champs sont vides. Merci de les compléter.";
+
+  errorContainer.innerHTML = '';
+  errorContainer.appendChild(error);
+  errorContainer.style.display = 'block';
+}
+
 // Ajoute cet événement au bouton de validation dans la deuxième modale
 const validButton = document.querySelector('.valid');
 validButton.addEventListener('click', async (event) => {
@@ -372,26 +393,4 @@ validButton.addEventListener('click', async (event) => {
   }
 });
 
-// Fonction pour gérer les erreurs de soumission d'œuvre
-function handleWorkSubmissionErrors(status, responseData) {
-  const modal2 = document.getElementById('modal2');
-  let errorContainer = document.querySelector('.error-container');
-
-  if (!errorContainer) {
-    errorContainer = document.createElement('div');
-    errorContainer.classList.add('error-container');
-    errorContainer.id = 'workErrorMessage';
-    modal2.appendChild(errorContainer);
-  }
-
-  const error = document.createElement('p');
-  error.style.textAlign = 'center';
-  error.style.color = 'red';
-  error.style.marginBottom = '15px';
-  error.innerText = responseData.message || "Certains champs sont vides. Merci de les compléter.";
-
-  errorContainer.innerHTML = '';
-  errorContainer.appendChild(error);
-  errorContainer.style.display = 'block';
-}
 
