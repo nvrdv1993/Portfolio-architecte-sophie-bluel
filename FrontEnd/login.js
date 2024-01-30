@@ -14,7 +14,7 @@ async function handleFormSubmit(e) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
         });
-         // Gestion de la réponse de l'AP
+         // Gestion de la réponse de l'API
         if (response.ok) {
             const data = await response.json();
             sessionStorage.setItem('accessToken', data.token);
